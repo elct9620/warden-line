@@ -11,4 +11,5 @@ module Warden
   end
 end
 
+Warden::Config.hash_accessor :line_client_id
 Warden::Strategies.add(:line, Warden::Strategies::Line)
