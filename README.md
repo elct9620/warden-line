@@ -1,5 +1,5 @@
 # Warden::Line
-[![Build Status](https://travis-ci.com/elct9620/warden-line.svg?branch=main)](https://travis-ci.com/elct9620/warden-line) [![Test Coverage](https://api.codeclimate.com/v1/badges/33f1eefd4a94ed7ece86/test_coverage)](https://codeclimate.com/github/elct9620/warden-line/test_coverage)
+[![Build Status](https://travis-ci.com/elct9620/warden-line.svg?branch=main)](https://travis-ci.com/elct9620/warden-line) [![Maintainability](https://api.codeclimate.com/v1/badges/33f1eefd4a94ed7ece86/maintainability)](https://codeclimate.com/github/elct9620/warden-line/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/33f1eefd4a94ed7ece86/test_coverage)](https://codeclimate.com/github/elct9620/warden-line/test_coverage)
 
 This gem is created for use LINE ID Token as warden strategies to use in LIFF application.
 
