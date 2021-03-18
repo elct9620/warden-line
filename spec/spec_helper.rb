@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'warden/line'
 require 'simplecov'
 
 SimpleCov.start do
   load_profile 'test_frameworks'
 end
+
+require 'warden/line'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
