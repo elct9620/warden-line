@@ -1,8 +1,6 @@
 # Warden::Line
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/warden/line`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This gem is created for use LINE ID Token as warden strategies to use in LIFF application.
 
 ## Installation
 
@@ -22,7 +20,94 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Currently, the workable version is tested with `rails_warden` gem.
+
+```
+# config/initialize/warden.rb
+
+Rails.configuration.middleware.use RailsWarden::Manager do |manager|
+  manager.failure_app = proc do |env|
+    [
+      401,
+      { 'Content-Type' => 'application/json' },
+      [{ error: 'Unauthorized', code: 401, reason: env['warden'].message }.to_json]
+    ]
+  end
+  manager.default_strategies :line
+  manager.line_client_id = ENV['LINE_CLIENT_ID']
+end
+
+# Rails Warden will use `id` to find user, but we want plain hash
+module Warden
+  class SessionSerializer
+    def serialize(user)
+      user
+    end
+
+    def deserialize(key)
+      key
+    end
+  end
+end
+```
+
+Create a plain object as model for decoded user.
+
+```ruby
+# app/models/user.rb
+
+class User
+  include ActiveModel::Model
+  include ActiveModel::Attributes
+
+  attribute :sub, :string
+  attribute :exp, :integer
+  attribute :name, :string
+  attribute :picture, :string
+  attribute :email, :string
+
+  def id
+    sub
+  end
+
+  def expired_at
+    @expired_at ||= Time.zone.at(exp)
+  rescue TypeError
+    Time.zone.now
+  end
+
+  def expired?
+    Time.zone.now >= expired_at
+  end
+end
+```
+
+Implement a controller to handle the session creation for sign-in and sign-out.
+
+```ruby
+# app/controller/sessions.rb
+
+class SessionsController < ActionController::Metal
+  include Authenticatable
+
+  def authenticate
+    # Ensure clear expired session
+    request.env['warden'].logout
+    request.env['warden'].authenticate!
+
+    @user = User.new(request.env['warden'].user.slice(*User.attribute_names))
+    # Post login actions
+  end
+end
+```
+
+## Roadmap
+
+* [x] Strategy for LINE ID Token
+* [ ] Rails Support
+  * [ ] Remove `rails_warden` dependency
+  * [ ] Helpers similar to `devise`
+* [ ] User object
 
 ## Development
 
@@ -32,9 +117,9 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/warden-line. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/warden-line/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/elct9620/warden-line. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/elct9620/warden-line/blob/master/CODE_OF_CONDUCT.md).
 
 
 ## Code of Conduct
 
-Everyone interacting in the Warden::Line project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/warden-line/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Warden::Line project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/elct9620/warden-line/blob/master/CODE_OF_CONDUCT.md).
