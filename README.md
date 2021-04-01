@@ -26,8 +26,9 @@ Currently, the workable version is tested with `rails_warden` gem.
 ```ruby
 # config/initialize/warden.rb
 
-Rails.configuration.middleware.use RailsWarden::Manager do |manager|
+Rails.configuration.middleware.use Warden::Manager do |manager|
   manager.failure_app = proc do |env|
+    Rails.logger.error(env['warden'].message)
     [
       401,
       { 'Content-Type' => 'application/json' },
@@ -36,19 +37,6 @@ Rails.configuration.middleware.use RailsWarden::Manager do |manager|
   end
   manager.default_strategies :line
   manager.line_client_id = ENV['LINE_CLIENT_ID']
-end
-
-# Rails Warden will use `id` to find user, but we want plain hash
-module Warden
-  class SessionSerializer
-    def serialize(user)
-      user
-    end
-
-    def deserialize(key)
-      key
-    end
-  end
 end
 ```
 
@@ -102,11 +90,13 @@ class SessionsController < ActionController::Metal
 end
 ```
 
+> Note: The Rack does not parse JSON body, please use GET with query string or POST with HTML Form to authenticate.
+
 ## Roadmap
 
 * [x] Strategy for LINE ID Token
 * [ ] Rails Support
-  * [ ] Remove `rails_warden` dependency
+  * [x] Remove `rails_warden` dependency
   * [ ] Helpers similar to `devise`
 * [ ] User object
 
