@@ -21,7 +21,7 @@ Or install it yourself as:
 
 ## Usage
 
-Currently, the workable version is tested with `rails_warden` gem.
+Currently, the workable version is tested with Rails.
 
 ```ruby
 # config/initialize/warden.rb
